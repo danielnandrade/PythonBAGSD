@@ -13,10 +13,19 @@ TODO:
 
 import matplotlib as plt
 
+
 def test_execution():
     #simple testing method to test stuff in  that module
 
     pass
+
+
+def testplot(x,y):
+    finished_plot = scatter(x, y)
+    return finished_plot
+
+
+
 
 
 
@@ -42,6 +51,7 @@ def plot_static2(p):
 
 def plot_daniel(xvalues, yvalues, xlabel, ylabel):
     pass
+
 
 
 
