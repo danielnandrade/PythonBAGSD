@@ -17,9 +17,14 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 # from datetime import datetime
 # from dv import *
-from dv.multiparser import multiParser
+from dv.multiparser import MultiParser
 # from IPython.utils.tests.test_wildcard import obj_t
+
+######################begin importation do graph
 import pandas as pd
+import matplotlib.figure
+import matplotlib.patches
+###################### end importation do graph
 
 
 import numpy as np
@@ -158,7 +163,7 @@ class ApplicationWindow(tk.Frame):
                                                          ("json files", "*.json")],
                                               title="Which data do you want plotted?")
         objContainer.setobj("selectedFile", filename)    # HIER NOCH HINZUFÜGEN!
-        m = multiParser(filename=filename)
+        m = MultiParser(filename=filename)
         objContainer.setobj("mpobject", m)
         self.label_f.configure(text=filename)    # changes the label from "Filename ... to the filename (with path)
         self.option_xy_changed()       # executes the function option_xy_change (description see below)
@@ -316,35 +321,48 @@ class Plotwindow:
     ##########################################################BEGIN NEW CHART TYP
 
     def piechart(self):
-        self.axes.cla()  # clear axes
-        self.c1.draw()
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+       # self.axes.cla()  # clear axes
         """A pie chart is a circle divided into sectors that each represent a proportion of the whole.
         It is often used to show proportion, where the sum of the sectors equal 100%."""
+        # xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
+        # ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
 
-        xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
-        ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
-        x_label = "X Label"
-        y_label = "Y Label"
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
 
         self.axes.set_title('What title?? maybe filename??')
         self.axes.set_xlabel(x_label)
         self.axes.set_ylabel(y_label)
-        self.axes.pie(xdata, autopct='%1.1f%%', shadow=True)
+        self.axes.pie(xdata, autopct='%1.1f%%')
         self.axes.legend(ydata, loc="upper left")
+        circle = matplotlib.patches.Circle((0, 0), 0.7, color='white')
+        self.axes.add_artist(circle)
+        # self.axes.gca()  # get the current axes
+        # self.axes.relim()  # make sure all the data fits
+        # self.axes.autoscale()  # auto-scale
+
         self.c1.draw()
 
     def histogram(self):
-        self.axes.cla()  # clear axes
-        self.c1.draw()
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
         """A histogram takes as input a numeric variable only.
         The variable is cut into several bins, and the number of observation per bin
         is represented by the height of the bar. It is possible to represent the
         distribution of several variable on the same axis using this technique."""
+        # xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
+        # ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
 
-        xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
-        ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
-        x_label = "X Label"
-        y_label = "Y Label"
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
 
         self.axes.set_title('What title?? maybe filename??')
         self.axes.set_xlabel(x_label)
@@ -352,9 +370,10 @@ class Plotwindow:
         self.axes.hist(xdata, bins=len(ydata),edgecolor='black')
         self.c1.draw()
 
+
     def barchart(self):
-        self.axes.cla()  # clear axes
-        self.c1.draw()
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
         """A histogram takes as input a numeric variable only.
         The variable is cut into several bins, and the number of observation per bin
         is represented by the height of the bar. It is possible to represent the
@@ -362,32 +381,41 @@ class Plotwindow:
         #
         xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
         ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+        x_label = 'X Label'
+        y_label = 'Y Label'
 
+        #
         # xdata = app.retrieve_x_data()
         # ydata = app.retrieve_y_data()
-        x_label = "X Label"
-        y_label = "Y Label"
+        #
+        # x_label = str(app.option_x_selected())
+        # y_label = str(app.option_y_selected())
 
         self.axes.set_title('What title?? maybe filename??')
         self.axes.set_xlabel(x_label)
         self.axes.set_ylabel(y_label)
         self.axes.bar(ydata, xdata, width=0.8, bottom=None, align="center")
+       # self.axes.text(xdata)
         self.axes.set_xticks(ydata)
 
         self.c1.draw()
 
     def lollypop(self):
-        self.axes.cla()  # clear axes
-        self.c1.draw()
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
         """A histogram takes as input a numeric variable only.
         The variable is cut into several bins, and the number of observation per bin
         is represented by the height of the bar. It is possible to represent the
         distribution of several variable on the same axis using this technique."""
 
+        # xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
+        # ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+
         xdata = app.retrieve_x_data()
         ydata = app.retrieve_y_data()
-        x_label = "X Label"
-        y_label = "Y Label"
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
 
         df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
         ordered_df = df.sort_values(by='Xvalue')
