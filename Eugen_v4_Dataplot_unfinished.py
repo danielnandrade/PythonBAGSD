@@ -201,7 +201,8 @@ class ApplicationWindow(tk.Frame):
 
     def retrieve_x_data(self):
         print("looking data for key:", self.x_entry_var.get())
-        v = list(objContainer.getobj("mpobject").get_parseobject().scan_values('xvalues', self.x_entry_var.get()))
+        v = objContainer.getobj("mpobject").get_parseobject().find_possible_keypath(self.x_entry_var.get())
+        v = objContainer.getobj("mpobject").get_parseobject().scan_values('xvalues', v)
         retrieved_data = v
         v = str(v)[0:30] + "..."  # NOCH ANPASSEN?
         print(v)
@@ -210,7 +211,8 @@ class ApplicationWindow(tk.Frame):
 
     def retrieve_y_data(self):
         print("looking data for key:", self.y_entry_var.get())
-        w = list(objContainer.getobj("mpobject").get_parseobject().scan_values('yvalues', self.y_entry_var.get()))
+        w = objContainer.getobj("mpobject").get_parseobject().find_possible_keypath(self.y_entry_var.get())
+        w = objContainer.getobj("mpobject").get_parseobject().scan_values('yvalues', w)
         retrieved_data = w
         w = str(w)[0:30] + "..."
         print(w)
@@ -307,6 +309,7 @@ class Plotwindow:
         #plots data from last retrieved data set
         xdata = app.retrieve_x_data()
         ydata = app.retrieve_y_data()
+
         x_label = str(app.option_x_selected())
         y_label = str(app.option_y_selected())
         print('xdata from data_scatterplot:', xdata, 'type:', type(xdata))
@@ -321,11 +324,19 @@ class Plotwindow:
         print('self:', self)
         self.c1.draw()
 
-    def mean_xy(self,xdata=None,ydata=None):
-
+    def mean_xy(self):
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+        coordinates = np.array(xdata,ydata) #data needed in lists
+        mean_values = np.mean(coordinates, axis=1)
+        mean_x = mean_values[0]
+        mean_y = mean_values[1]
+        self.axes.scatter(mean_x, mean_y, color='red')
+        self.c1.draw()
+        #draw crossing lines
         #use numpy mean
 
-        #let lines cross
+        #let lines cross?
         #return labels on which data set the mean is based
         pass
 
