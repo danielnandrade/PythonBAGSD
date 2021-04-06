@@ -16,100 +16,89 @@ $	the root object/element
 In addition:
 The following Methods expects that Lists are always with same types, only first item will be analyzed
 """
-import dv.baseparser as dvm
 import json
 from jsonpath_ng import jsonpath, parse
+from dv.baseparser import BaseParser
 
-from dv.baseparser import baseParser
 
-class jsonParser(baseParser):
-    def __init__(self, filename=None, url=None, sourcestring=None):
-        super().__init__(filename, url, sourcestring)
-        self.set_source(filename, url, sourcestring)
+class JsonParser(BaseParser):
+    def __init__(self, filename=None, url=None, source_string=None) -> str:
 
-    def set_source(self, filename=None, url=None, sourcestring=None):
-        s = ""
-        if not filename and not url and not sourcestring:
-            return "Es muss mindestens einer der drei Parameter uebergeben werden"
+        # init -> triggers automatically set_source in baseObject
+        return super().__init__(filename, url, source_string)
 
+    def set_source(self, filename=None, url=None, source_string=None) -> str:
         try:
-            if sourcestring:
-                self.jsonobj = json.loads(sourcestring)
-                self.filename = filename
-                self.sourcestring = sourcestring
+            s = super().set_source(filename, url, source_string)
+
+            if source_string:
+                self.jsonobj = json.loads(source_string)
             elif filename:
                 with open(filename) as f:
                     self.jsonobj = json.load(f)
-                self.filename = filename
             elif url:  # jsonstring aus url holen
                 import requests
-                self.sourcestring = requests.get(url).json()
-                self.url = url
-                self.jsonobj.loads(self.sourcestring)
+                self.set_source_string(json.dumps(requests.get(url).json()))
+                self.jsonobj = json.loads(self.get_source_string())
             else:
                 s = "Parameters are incorrect"
         except Exception as e:
-            s = e.errno
+            s = e.args
             print(s)
 
         return s
 
-    """ internal """
-
-    """ This Method searches in the jsonobject each valid key which can contain data
-        with the first possible value (for presentation purposes) and returns it as dict
-        {'lon':123, 'lat' : 23, 'name' : 'hanspeter'}, empty {} for the case something went wrong
-    """
-    def find_possible_keynames_all(self):
+    def find_possible_keynames_all(self) -> dict:
         rdict = {}
 
-        for k,v in self.jsonobj.items():
-            if isinstance(v, dict):
-                rdict[k] = "{dictLevel1}"
-                self._find_possible_keynames_dict(v, rdict)
-            elif isinstance(v, list):
-                rdict[k+"[*]"] = "[list]"
-                self._find_possible_keynames_dict(v[0], rdict)
-            else:
-                rdict[str(k)] = str(v)
-
-            #print("rdict=",rdict)
+        if isinstance(self.jsonobj, dict):
+            for k, v in self.jsonobj.items():
+                if isinstance(v, dict):
+                    rdict[k] = "{dictLevel1}"
+                    self.__find_possible_keynames_dict(v, rdict)
+                elif isinstance(v, list):
+                    rdict[k+"[*]"] = "[list]"
+                    self.__find_possible_keynames_dict(v[0], rdict)
+                else:
+                    rdict[str(k)] = str(v)
+        elif isinstance(self.jsonobj, list):
+            self.__find_possible_keynames_list(self.jsonobj[0], rdict)
+        #print("ALL=", rdict)
         return rdict
 
-    def _find_possible_keynames_dict(self, d, sumd):
+    def __find_possible_keynames_dict(self, d, sumd):
         if not isinstance(d, dict):
             if isinstance(d, list):
-                self._find_possible_keynames_list(d, sumd)
+                self.__find_possible_keynames_list(d, sumd)
                 # wenn keine dict dann hier raus
             return
 
-        #print("dict=",d, type(d))
         for k, v in d.items():
             if isinstance(v, dict):
                 sumd[k] = "{dict}"
-                self._find_possible_keynames_dict(v, sumd)
+                self.__find_possible_keynames_dict(v, sumd)
             elif isinstance(v, list):
                 sumd[k+"[0]"] = "[list]"
-                if isinstance(v[0],dict):
-                    self._find_possible_keynames_list(v[0], sumd)
+                if isinstance(v[0], dict):
+                    self.__find_possible_keynames_list(v[0], sumd)
                 elif isinstance(v[0], list):
-                    self._find_possible_keynames_list(v[0], sumd)
+                    self.__find_possible_keynames_list(v[0], sumd)
                 else:
                     sumd[k] = str(v)
             else:
                 sumd[k] = str(v)
 
-    def _find_possible_keynames_list(self, l, sumd):
-        if not isinstance(l, list):
-            if isinstance(l, dict):
-                self._find_possible_keynames_dict(l, sumd)
+    def __find_possible_keynames_list(self, list_to_check, sumd):
+        if not isinstance(list_to_check, list):
+            if isinstance(list_to_check, dict):
+                self.__find_possible_keynames_dict(list_to_check, sumd)
                 # wenn keine List dann hier raus
             return
 
-        for row in l:
+        for row in list_to_check:
             if isinstance(row, dict):
-                sumd[row] = "{dict in Liste}"
-                #self.find_possible_keynames_dict(v,sumd)
+                sumd[row] = "[*]"
+                #self.find_possible_keynames_dict(row,sumd)
             elif isinstance(row, list):
                 sumd[row+"[0]"] = "[list in Liste]"
                 #self.find_possible_keynames_list(v, sumd)
@@ -117,41 +106,58 @@ class jsonParser(baseParser):
                 #sumd[row] = str(v)
                 sumd[str(row)] = "[irgendwas in Liste]"
 
+    def find_possible_keypath(self, search_string) -> str:
+        """
 
+        :param search_string: the name with or without the whole path, but the name must be present
+        :return: the complete path to retrieve related values
 
-    def find_possible_keypath(self, searchstring):
+        """
         if not self.jsonobj:
             raise Exception("Es konnte kein JSON-Objekt erkannt werden, wurde die init-Methode aufgerufen ?")
 
-        # check if index argument ist provided and remove it temporary, because its not part of the json
-        s = searchstring.split('[')
-        searchstring_idx=""
-        if len(s) > 1:
-            searchstring=s[0]
-            searchstring_idx = "["+s[1]
+        # only if not starting with root ($), when root is provided trust the path and dont look for fullpath
+        if "$" in search_string:
+            return search_string
 
+        # check if index argument ist provided and remove it temporary, because its not part of the json
+        searchstring_idx = ""
+        tmps = search_string.split('[')
+        if len(tmps) > 1:
+            search_string=tmps[0]
+            searchstring_idx = "["+tmps[1]
 
         self.possible_path=[]
-        if searchstring in self.jsonobj.keys():  # found in root
-            self.possible_path.append(searchstring)
 
-        else: # nicht im Haupt-Dict-Key, also weitersuchen recursiv in inneren Objekten
-            for dict_key, dict_value in self.jsonobj.items():
-                # check type and depending on this continue search
-                print("Level1: ",dict_key)
-                if isinstance(dict_value,dict):
-                    if self._find_possible_key_path_in_dict(searchstring, dict_value): # if found
-                        self.possible_path.append(dict_key)
-                        break
-                elif isinstance(dict_value,list):
-                    if isinstance(dict_value[0],dict):
-                        if self._find_possible_key_path_in_dict(searchstring, dict_value[0]):
-                            self.possible_path.append(dict_key + "[*]")
+        # hauptzweig ist dict oder list
+        if isinstance(self.jsonobj, dict):
+            if search_string in self.jsonobj.keys():  # found in root
+                self.possible_path.append(search_string)
+            else: # nicht im Haupt-Dict-Key, also weitersuchen recursiv in inneren Objekten
+                for dict_key, dict_value in self.jsonobj.items():
+                    # check type and depending on this continue search
+                    print("Level1: ", dict_key)
+                    if isinstance(dict_value, dict):
+                        if self.__find_possible_key_path_in_dict(search_string, dict_value): # if found
+                            self.possible_path.append(dict_key)
                             break
-                    elif isinstance(dict_value[0],list):
-                        if self._find_possible_key_path_in_list0(searchstring, dict_value[0]):
-                            self.possible_path.append(dict_key + "[*]")
-                            break
+                    elif isinstance(dict_value, list):
+                        if isinstance(dict_value[0], dict):
+                            if self.__find_possible_key_path_in_dict(search_string, dict_value[0]):
+                                self.possible_path.append(dict_key + "[*]")
+                                break
+                        elif isinstance(dict_value[0], list):
+                            if self.__find_possible_key_path_in_list0(search_string, dict_value[0]):
+                                self.possible_path.append(dict_key + "[*]")
+                                break
+        else: # kein dict, sondern list im hauptzweig
+            if isinstance(self.jsonobj, list):
+                if isinstance(self.jsonobj[0], dict):
+                    if self.__find_possible_key_path_in_dict(search_string, self.jsonobj[0]):
+                        self.possible_path.append("[*]")
+                elif isinstance(self.jsonobj[0], list):
+                    if self.__find_possible_key_path_in_list0(search_string, self.jsonobj[0]):
+                        self.possible_path.append("[*]")
 
         rs = ".".join(self.possible_path[::-1])
 
@@ -167,49 +173,74 @@ class jsonParser(baseParser):
         return rs
 
     # returns tuple(T/F found or not, value when found)
-    def _find_possible_key_path_in_list0(self, searchstring, search_list):
+    def __find_possible_key_path_in_list0(self, search_string, search_list) -> bool:
+        """
+        PRIVATE method specific for json
+        :param search_string:  search_string
+        :param search_list:   list object in which to search
+        :return:              true when found, false when not found
+        """
         for list_value in search_list:
-            print("LevelY: ",list_value)
+            print("LevelY: ", list_value)
             if isinstance(list_value,dict):
-                if self._find_possible_key_path_in_dict(searchstring, list_value): # found
+                if self.__find_possible_key_path_in_dict(search_string, list_value): # found
                     return True
 
-            elif isinstance(list_value,list):
-                if self._find_possible_key_path_in_list0(searchstring, list_value[0]): # found
+            elif isinstance(list_value, list):
+                if self.__find_possible_key_path_in_list0(search_string, list_value[0]): # found
                     return True
             else:
                 continue
+        return False
 
-    def _find_possible_key_path_in_dict(self, searchstring, search_dict):
+    def __find_possible_key_path_in_dict(self, search_string, search_dict)-> bool:
+        """
+        PRIVATE method specific for json
+        :param search_string:  search_string
+        :param search_dict:   dict in which to search
+        :return:              true when found, false when not found
+        """
         if isinstance(search_dict, dict):
             # if in keys, found
-            if searchstring in search_dict.keys():  # found
-                self.possible_path.append(searchstring)
+            if search_string in search_dict.keys():  # found
+                self.possible_path.append(search_string)
                 return True
 
             for dict_key, dict_value in search_dict.items():
-                print("LevelX: ",dict_key)
-                if isinstance(dict_value,dict):
-                    if self._find_possible_key_path_in_dict(searchstring, dict_value): # found
+                print("LevelX: ", dict_key)
+                if isinstance(dict_value, dict):
+                    if self.__find_possible_key_path_in_dict(search_string, dict_value): # found
                         self.possible_path.append(dict_key)
                         return True
 
-                elif isinstance(dict_value,list):
+                elif isinstance(dict_value, list):
                     if len(dict_value) > 0:
-                        if isinstance(dict_value[0],dict):
-                            if self._find_possible_key_path_in_dict(searchstring, dict_value[0]): # found
+                        if isinstance(dict_value[0], dict):
+                            if self.__find_possible_key_path_in_dict(search_string, dict_value[0]): # found
                                 self.possible_path.append(dict_key+"[*]")
                                 return True
-                            elif self._find_possible_key_path_in_list0(searchstring, dict_value[0]): # found
+                            elif self.__find_possible_key_path_in_list0(search_string, dict_value[0]): # found
                                 self.possible_path.append("[*]")
                                 return True
 
-                elif dict_key == searchstring:
+                elif dict_key == search_string:
                     # gefunden, nicht weiter suchen noetig
-                    self.possible_path.append(searchstring)
+                    self.possible_path.append(search_string)
                     return True
 
-    def scan_values(self, name, keypath):
+            # if not found in any of the hirarchie
+            return False
+
+    def scan_values(self, name, keypath) -> list:
+        """
+
+        This method returns values for a specific key and saves them in a dict for later usage
+
+        :param name:    whatevername, with this name the data will be stored and can later be retrieved
+        :param keypath: the full path on how the values from the object can be fetched,
+                        if syntax is not VALID exception is raised
+        :return:        list of the values e.g. [1,2,8,9,11...]
+        """
         # jsonstring is already filled during init constructor otherwise all cant work
         # path to search e.g. to features/alert in {"features":{"alert":"myval"}}
         # store values in {name: [keypath, [values]]}
@@ -219,13 +250,10 @@ class jsonParser(baseParser):
 
         # match = jsonpath_expression.find(json_data)[0]
         x = [match.value for match in jsonpath_expression.find(self.jsonobj)]
+        if len(x) == 1:
+            x = x[0]
 
         listkeypath_and_values = [keypath, x]
-        self.dictSavedValues[name] = listkeypath_and_values
+        #self.__dict_saved_values[name] = listkeypath_and_values
+        super().set_values(name, listkeypath_and_values)
         return x
-
-    def get_values(self, name):
-        if name in self.dictSavedValues.keys():
-            return self.dictSavedValues[name]
-        else:
-            return "['no data']"
