@@ -1,95 +1,200 @@
-# Histogram
-import numpy as np
+############################# Module used
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
-N_points = 100000
-n_bins = 20
+############################# Variable part
 
-# Generate a normal distribution, center at x=0 and y=5
-x = np.random.randn(N_points)
-y = .4 * x + np.random.randn(100000) + 5
+x_value = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
+x_label = "X Label"
+y_value = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+y_label = "Y Label"
+title_value = "Variable Title"
+graph_colors = ['Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
+            'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
+            'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn']
 
-fig, axs = plt.subplots(1, sharey=True, tight_layout=True)
+############################# Pie CHART
 
-# We can set the number of bins with the `bins` kwarg
-axs[0].hist(x, bins=n_bins)
-plt.show()
+def piechart():
 
-# # Barchart
-#
-# labels = ['G1', 'G2', 'G3', 'G4', 'G5']
-# men_means = [20, 34, 30, 35, 27]
-# women_means = [25, 32, 34, 20, 25]
-#
-# x = np.arange(len(labels))  # the label locations
-# width = 0.35  # the width of the bars
-#
-# fig, ax = plt.subplots()
-# rects1 = ax.bar(x - width/2, men_means, width, label='Men')
-# rects2 = ax.bar(x + width/2, women_means, width, label='Women')
-#
-# # Add some text for labels, title and custom x-axis tick labels, etc.
-# ax.set_ylabel('Scores')
-# ax.set_title('Scores by group and gender')
-# ax.set_xticks(x)
-# ax.set_xticklabels(labels)
-# ax.legend()
-#
-# ax.bar_label(rects1, padding=3)
-# ax.bar_label(rects2, padding=3)
-#
-# fig.tight_layout()
-#
-# plt.show()
-#
-# # Table with chart
-#
-#
-# data = [[ 66386, 174296,  75131, 577908,  32015],
-#         [ 58230, 381139,  78045,  99308, 160454],
-#         [ 89135,  80552, 152558, 497981, 603535],
-#         [ 78415,  81858, 150656, 193263,  69638],
-#         [139361, 331509, 343164, 781380,  52269]]
-#
-# columns = ('Freeze', 'Wind', 'Flood', 'Quake', 'Hail')
-# rows = ['%d year' % x for x in (100, 50, 20, 10, 5)]
-#
-# values = np.arange(0, 2500, 500)
-# value_increment = 1000
-#
-# # Get some pastel shades for the colors
-# colors = plt.cm.BuPu(np.linspace(0, 0.5, len(rows)))
-# n_rows = len(data)
-#
-# index = np.arange(len(columns)) + 0.3
-# bar_width = 0.4
-#
-# # Initialize the vertical-offset for the stacked bar chart.
-# y_offset = np.zeros(len(columns))
-#
-# # Plot bars and create text labels for the table
-# cell_text = []
-# for row in range(n_rows):
-#     plt.bar(index, data[row], bar_width, bottom=y_offset, color=colors[row])
-#     y_offset = y_offset + data[row]
-#     cell_text.append(['%1.1f' % (x / 1000.0) for x in y_offset])
-# # Reverse colors and text labels to display the last value at the top.
-# colors = colors[::-1]
-# cell_text.reverse()
-#
-# # Add a table at the bottom of the axes
-# the_table = plt.table(cellText=cell_text,
-#                       rowLabels=rows,
-#                       rowColours=colors,
-#                       colLabels=columns,
-#                       loc='bottom')
-#
-# # Adjust layout to make room for the table:
-# plt.subplots_adjust(left=0.2, bottom=0.2)
-#
-# plt.ylabel("Loss in ${0}'s".format(value_increment))
-# plt.yticks(values * value_increment, ['%d' % val for val in values])
-# plt.xticks([])
-# plt.title('Loss by Disaster')
-#
-# plt.show()
+    """A pie chart is a circle divided into sectors that each represent a proportion of the whole.
+    It is often used to show proportion, where the sum of the sectors equal 100%."""
+
+    plt.title(title_value)
+    plt.pie(x_value, labels=y_value, autopct='%1.1f%%')
+    plt.tight_layout()
+    plt.show()
+
+############################# Histogram CHART
+
+def histogramchart():
+
+    """A histogram takes as input a numeric variable only.
+    The variable is cut into several bins, and the number of observation per bin
+    is represented by the height of the bar. It is possible to represent the
+    distribution of several variable on the same axis using this technique."""
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.hist(x_value,bins=len(y_value),edgecolor='black')
+    plt.tight_layout()
+    plt.show()
+
+############################# Barchart CHART
+
+def barchart():
+
+    """A barplot shows the relationship between a numeric and a categoric variable.
+    Each entity of the categoric variable is represented as a bar. The size of the
+    bar represents its numeric value.
+    Barplot is sometimes described as a boring way to visualize information.
+    However it is probably the most efficient way to show this kind of data.
+    Ordering bars and providing good annotation are often necessary."""
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.bar(range(0,len(y_value)), x_value)
+    plt.xticks(range(0,len(y_value)), y_value)
+    plt.show()
+
+############################# Scatter CHART
+
+def scatterchart():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+    """A scatterplot displays the relationship between 2 numeric variables.
+    For each data point, the value of its first variable is represented on
+    the X axis, the second on the Y axis"""
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.plot(x_value, y_value_int,linestyle='none', marker='o')
+    plt.show()
+
+
+############################# Scatter_line CHART
+
+def scatterchart_line():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+
+    """A scatterplot displays the relationship between 2 numeric variables.
+    For each data point, the value of its first variable is represented on
+    the X axis, the second on the Y axis"""
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.plot(x_value, y_value_int, linestyle='-', marker='o')
+    plt.show()
+
+#############################  Lollipop_scatter CHART
+
+def lollipop_scatter():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+
+    """A lollipop plot is basically a barplot, where the bar is transformed
+    in a line and a dot. It shows the relationship between a numeric and a
+    categoric variable.
+    However it is more appealing and convey as well the information.
+    It is especially useful when you have several bars of the same height:
+    it avoids to have a cluttered figure and a Moiré effect."""
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.stem(y_value_int,x_value)
+    plt.ylim(0)
+    plt.show()
+
+#############################  Lollipop_ordered CHART
+
+def lollipop_ordered():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+
+    """A lollipop plot is basically a barplot, where the bar is transformed
+    in a line and a dot. It shows the relationship between a numeric and a
+    categoric variable.
+    However it is more appealing and convey as well the information.
+    It is especially useful when you have several bars of the same height:
+    it avoids to have a cluttered figure and a Moiré effect."""
+
+    df = pd.DataFrame({'Yvalue':y_value,'Xvalue':x_value})
+    ordered_df = df.sort_values(by='Xvalue')
+    my_range = range(1,len(df.index)+1)
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.stem(ordered_df['Xvalue'])
+    plt.xticks(my_range, ordered_df['Yvalue'])
+    plt.ylim(0)
+    plt.show()
+
+#############################  Lollipop_ordered_horizontal CHART
+
+def lollipop_ordered_horizontal():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+
+    """A lollipop plot is basically a barplot, where the bar is transformed
+    in a line and a dot. It shows the relationship between a numeric and a
+    categoric variable.
+    However it is more appealing and convey as well the information.
+    It is especially useful when you have several bars of the same height:
+    it avoids to have a cluttered figure and a Moiré effect."""
+
+    df = pd.DataFrame({'Yvalue':y_value,'Xvalue':x_value})
+    ordered_df = df.sort_values(by='Xvalue')
+    my_range = range(1,len(df.index)+1)
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.hlines(y=my_range, xmin=0, xmax=ordered_df['Xvalue'])
+    plt.plot(ordered_df['Xvalue'], my_range)
+    plt.yticks(my_range, ordered_df['Yvalue'])
+    plt.show()
+
+def area_chart_horizontal():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.fill_between(x_value,y_value)
+    plt.show()
+
+
+def area_chart_group():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.stackplot(x_value,y_value_int)
+    plt.show()
+
+def main():
+    piechart()
+    histogramchart()
+    barchart()
+    scatterchart()
+    scatterchart_line()
+    lollipop_scatter()
+    lollipop_ordered()
+    lollipop_ordered_horizontal()
+    area_chart_horizontal()
+    area_chart_group()
+
+if __name__=="__main__":
+    main()
+
