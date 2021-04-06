@@ -5,7 +5,7 @@ import pandas as pd
 
 ############################# Variable part
 
-x_value = [15, 30, 45, 10, 30, 60, 80, 90, 100, 130, 14]
+x_value = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
 x_label = "X Label"
 y_value = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
 y_label = "Y Label"
@@ -72,7 +72,7 @@ def scatterchart():
     plt.title(title_value)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
-    plt.plot(x_value, y_value_int, linestyle=None, marker='o')
+    plt.plot(x_value, y_value_int,linestyle='none', marker='o')
     plt.show()
 
 
@@ -162,6 +162,26 @@ def lollipop_ordered_horizontal():
     plt.yticks(my_range, ordered_df['Yvalue'])
     plt.show()
 
+def area_chart_horizontal():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.fill_between(x_value,y_value)
+    plt.show()
+
+
+def area_chart_group():
+
+    y_value_int = [45, 10, 85, 70, 40, 10, 65, 45, 60, 100, 15]
+
+    plt.title(title_value)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.stackplot(x_value,y_value_int)
+    plt.show()
 
 def main():
     piechart()
@@ -172,6 +192,8 @@ def main():
     lollipop_scatter()
     lollipop_ordered()
     lollipop_ordered_horizontal()
+    area_chart_horizontal()
+    area_chart_group()
 
 if __name__=="__main__":
     main()
