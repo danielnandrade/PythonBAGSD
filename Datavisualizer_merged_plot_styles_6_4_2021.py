@@ -14,18 +14,18 @@ from tkinter import filedialog
 # import csv
 # import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.figure
+import matplotlib.patches
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 # from datetime import datetime
 # from dv import *
-from dv.multiparser import multiParser
+from dv.multiparser import MultiParser
 # from IPython.utils.tests.test_wildcard import obj_t
 
 
-
+import pandas as pd
 import numpy as np
-import math         #XXX only for testing
 import random       #XXX only for testing
-import BAGSD_analytics as ana   #XXX not implemented yet
 
 # matplotlib.use('TkAgg')
 
@@ -38,9 +38,16 @@ class ApplicationWindow(tk.Frame):
     #key is the description in the drop down menu,
     #the value is the name of the called plot function
 
-    plot_dropdown_dic = {'Scatter plot': 'scatterplotxy',
-                         'Line plot': 'lineplotxy',
-                         'Sinus': 'sinus'
+    plot_dropdown_dic = {'Test plot' : 'testplot',
+                         'Data scatter plot': 'data_scatterplot',
+                         'Pie chart': 'piechart',
+                         'Histogram': 'histogram',
+                         'Bar chart': 'barchart',
+                         'Lollipop': 'lollypop',
+                         'analytics: mean': 'mean_xy',
+                         'Earth overlay': 'earth_overlay',
+                         'Cosine wave': 'cosinewave',
+                         'Stem and leaf plot': 'stemandleafplot'
                          }
 
     def __init__(self,  *args, **kwargs):
@@ -154,7 +161,7 @@ class ApplicationWindow(tk.Frame):
                                                          ("json files", "*.json")],
                                               title="Which data do you want plotted?")
         objContainer.setobj("selectedFile", filename)    # HIER NOCH HINZUFÜGEN!
-        m = multiParser(filename=filename)
+        m = MultiParser(filename=filename)
         objContainer.setobj("mpobject", m)
         self.label_f.configure(text=filename)    # changes the label from "Filename ... to the filename (with path)
         self.option_xy_changed()       # executes the function option_xy_change (description see below)
@@ -190,27 +197,34 @@ class ApplicationWindow(tk.Frame):
         # print(self.show_first_x.get())
         self.x_entry_field.delete(0, END)  # OPTIONS_X[1])
         self.x_entry_field.insert(0, self.show_first_x.get())
+        return self.show_first_x.get()  #XXX
 
     def option_y_selected(self, *args):
         # print(self.variable_axes_y.get())
-
         self.y_entry_field.delete(0, END)
         self.y_entry_field.insert(0, self.variable_axes_y.get())
+        return self.variable_axes_y.get() #XXX
 
     def retrieve_x_data(self):
         print("looking data for key:", self.x_entry_var.get())
-        v = list(objContainer.getobj("mpobject").get_parseobject().scan_values('xvalues', self.x_entry_var.get()))
+        v = objContainer.getobj("mpobject").get_parseobject().find_possible_keypath(self.x_entry_var.get())
+        v = objContainer.getobj("mpobject").get_parseobject().scan_values('xvalues', v)
+        retrieved_data = v
         v = str(v)[0:30] + "..."  # NOCH ANPASSEN?
-        print(v)
+        #print(v)
         self.result_x.configure(text=v)
+        return retrieved_data
 
     def retrieve_y_data(self):
         print("looking data for key:", self.y_entry_var.get())
-        w = list(objContainer.getobj("mpobject").get_parseobject().scan_values('yvalues', self.y_entry_var.get()))
+        w = objContainer.getobj("mpobject").get_parseobject().find_possible_keypath(self.y_entry_var.get())
+        w = objContainer.getobj("mpobject").get_parseobject().scan_values('yvalues', w)
+        retrieved_data = w
         w = str(w)[0:30] + "..."
-        print(w)
+        #print(w)
         self.result_y.configure(text=w)
         # lbl_result_x.configure(text=v)
+        return retrieved_data
 
     def clear(self):
         self.plot_window.clearplot()
@@ -257,19 +271,27 @@ class Plotwindow:
 
 
     def plot(self):  #selects plot to draw; gets called from plot button
-        #print(app.variable_plot.get())
-        print('here 4')
         plotstyle = app.plot_dropdown_dic[app.variable_plot.get()]
-        print(plotstyle)
-        if plotstyle == 'sinus':
-            self.sinus()
-            print('here 1')
-        elif plotstyle == 'scatterplotxy':
-            self.scatterplotxy()
-            print('here 2')
-        elif plotstyle == 'lineplotxy':
-            print('here 3')
-            self.lineplotxy()
+        if plotstyle =='testplot':
+            self.testplot()
+        elif plotstyle =='data_scatterplot':
+            self.data_scatterplot()
+        elif plotstyle =='mean_xy':
+            self.mean_xy()
+        elif plotstyle =='earth_overlay':
+            self.earth_overlay()
+        elif plotstyle =='piechart':
+            self.piechart()
+        elif plotstyle =='histogram':
+            self.histogram()
+        elif plotstyle =='barchart':
+            self.barchart()
+        elif plotstyle =='histogram':
+            self.histogram()
+        elif plotstyle == 'cosinewave':
+            self.cosinewave()
+        elif plotstyle == 'stemandleafplot':
+            self.stemandleafplot()
 
 
     #XXX collect plotstyles here: (maybe outsource it in another module BAGSD plotstyles? complicated because
@@ -277,28 +299,200 @@ class Plotwindow:
 
     #just some test plots to test the drop down
 
-    def scatterplotxy(self,x = None,y = None): #XXX works so far only for testing
-        x = range(100)  # XXX plottable data to test
+    def testplot(self):
+        x = range(1000)  # XXX plottable data to test
         y = []
-        for i in range(100):
-            y.append(random.randint(5, 10))
+        for i in range(1000):
+            y.append(random.randint(0, 200))
 
         self.axes.scatter(x, y)
         self.c1.draw()
 
-    def lineplotxy(self):
-        x = np.linspace(0, 100, 1000)
-        y = 0.005*x**2
-        self.axes.plot(x, y)
+
+    #plots of data:
+
+    def data_scatterplot(self):
+        #first iteration
+        #plots data from last retrieved data set
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+        #print('xdata from data_scatterplot:', xdata, 'type:', type(xdata))
+        #print('ydata from data_scatterplot:', ydata, 'type:', type(ydata))
+        #print('xlabel from data_scatterplot:', x_label, 'type:', type(x_label))
+        #print('ylabel from data_scatterplot:', y_label, 'type:', type(y_label))
+        #self.figure.ylabel(y_label)
+        self.axes.set_title('What title?? maybe filename??')
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.scatter(xdata, ydata)
+        self.c1.draw()
+
+    def piechart(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+       # self.axes.cla()  # clear axes
+        """A pie chart is a circle divided into sectors that each represent a proportion of the whole.
+        It is often used to show proportion, where the sum of the sectors equal 100%."""
+        # xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
+        # ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        self.axes.set_title('What title?? maybe filename??')
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.pie(xdata, autopct='%1.1f%%')
+        self.axes.legend(ydata, loc="upper left")
+        #circle = plt.patches.Circle((0, 0), 0.7, color='white')
+        circle = matplotlib.patches.Circle((0, 0), 0.7, color='white')
+        self.axes.add_artist(circle)
+        self.axes.add_artist(circle)
+        # self.axes.gca()  # get the current axes
+        # self.axes.relim()  # make sure all the data fits
+        # self.axes.autoscale()  # auto-scale
+
+        self.c1.draw()
+
+    def histogram(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+        # xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
+        # ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        self.axes.set_title('What title?? maybe filename??')
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.hist(xdata, bins=len(ydata),edgecolor='black')
+        self.c1.draw()
+
+    def barchart(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+        #
+        #xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
+        #ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+        #x_label = 'X Label'
+        #y_label = 'Y Label'
+
+        #
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+        #
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        self.axes.set_title('What title?? maybe filename??')
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.bar(ydata, xdata, width=0.8, bottom=None, align="center")
+       # self.axes.text(xdata)
+        self.axes.set_xticks(ydata)
+
+        self.c1.draw()
+
+    def lollypop(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+
+        # xdata = [15, 30, 45, 20, 30, 60, 80, 90, 100, 130, 14]
+        # ydata = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
+        ordered_df = df.sort_values(by='Xvalue')
+        my_range = range(1, len(df.index) + 1)
+
+        self.axes.set_title('What title?? maybe filename??')
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.stem(ordered_df['Yvalue'],ordered_df['Xvalue'])
+        self.axes.set_ylim(0)
+        self.c1.draw()
+
+    def cosinewave(self):
+        x = np.arange(0, 20, 0.2)             # allows us to get x values for the data plot
+        y = np.cos(x)                 # allows the amplitude of the cosine wave to be cosine of a variable like time
+        print('self:', self)
+        self.axeshlines(y=0, color='r')
+        self.axes.scatter(x, y)
         self.c1.draw()
         pass
 
-    def sinus(self):
-        x = np.linspace(0,100,1000)
-        y = np.sin(x*0.5)
-        self.axes.scatter(x,y)
+    def stemandleafplot(self):
+        # marks obtained by students in an examination
+        y = [10, 11, 22, 24, 35, 37, 45, 47, 48, 58, 56, 59, 61, 71, 81, 92, 95]
+        x = [1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 7, 8, 9, 9]  # corresponding stems
+        # set the x axis and y axis limits
+        self.axes.set_xlim([0, 10])
+        self.axes.set_ylim([0, 100])
+
+        y_line, x_line, baseline = self.axes.stem(x, y, '-.')
+        #mpl.mplcursors.cursor()
         self.c1.draw()
 
+    #analytics:
+
+    def mean_xy(self):
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+        print('xdata from mean_xy:', xdata, 'type:', type(xdata))
+        print('ydata from mean_xy:', ydata, 'type:', type(ydata))
+        mean_x = np.mean(np.array(xdata))
+        mean_y = np.mean(np.array(ydata))
+        self.axes.hlines(mean_y, min(xdata), max(xdata))
+        self.axes.vlines(mean_x, min(ydata), max(ydata))
+        self.axes.scatter(mean_x, mean_y, color='red')
+        self.c1.draw()
+        #draw crossing lines
+        #use numpy mean
+
+        #let lines cross?
+        #return labels on which data set the mean is based
+
+    def standard_dev(self,xdata=None,ydata=None):
+
+        #use numpy standard dev
+
+        #plot oval
+        # return labels on which data set the standev is based
+        pass
+
+    #additional plots:
+
+    def earth_overlay(self):
+        #TODO: *scling and use another file with no imprint
+        overlay = plt.imread('pngkit_world-map-outline-png_1243196.png')
+        self.axes.imshow(overlay)
+        self.c1.draw()
 
 
 if __name__ == "__main__":
@@ -307,7 +501,6 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("What do you want to plot?")
     app = ApplicationWindow(master=root)
-
     objContainer = myVars()
     print("meineObjekte=", objContainer.getAllNames())
     app.mainloop()
