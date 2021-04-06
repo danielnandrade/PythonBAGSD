@@ -1,10 +1,10 @@
 import dv.jsonparser
 
 # import xmlparser, csvparser, sqlparser (TODO: need implmentation!)
-from dv.jsonparser import jsonParser
+from dv.jsonparser import JsonParser
 
 
-class multiParser():
+class MultiParser():
     def __init__(self, filename=None, url=None, sourcestring=None):
         #if not filename and not url and not sourcestring:
             #raise return "Es muss mindestens einer der drei Parameter uebergeben werden"
@@ -14,7 +14,7 @@ class multiParser():
         # file -> filename
         # ... instantiate depending on extension
         # if csv -> csvobj .. jsonobj...
-        self._parseObject = jsonParser(filename, url, sourcestring)
+        self._parseObject = JsonParser(filename, url, sourcestring)
         print("ParseObjekt=", self._parseObject)
 
     def get_parseobject(self):
@@ -27,12 +27,10 @@ class multiParser():
     def set_source(self, filename=None, url=None, sourcestring=None):
         return self.__init__(filename, url, sourcestring);
 
-    """ internal """
-
     def find_possible_keynames_all(self):
         return self.get_parseobject().find_possible_keynames_all()
 
-    def find_possible_keypath(self, searchstring):
+    def find_possible_keypath(self, searchstring) -> str:
         return self.get_parseobject().find_possible_keypath(searchstring)
 
     def scan_values(self, name, keypath):
@@ -40,4 +38,4 @@ class multiParser():
         return self.get_parseobject().scan_values(name, keypath)
 
     def get_values(self, name):
-        return self.get_parseobject().dictSavedValues[name]
+        return self.get_parseobject().get_values(name)

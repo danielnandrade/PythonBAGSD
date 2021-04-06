@@ -9,7 +9,7 @@ from dv import *#multiparser as mparser
 
 from IPython.utils.tests.test_wildcard import obj_t
 
-from dv.multiparser import multiParser
+from dv.multiparser import MultiParser
 
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -171,20 +171,28 @@ def selectfile():
                                           title="Welche CSV-Datei soll geplottet werden? Sach schon")
     objContainer.setobj("selectedFile",filename)
     #r.config(state="normal")
-    m = multiParser(filename=filename)
+    m = MultiParser(filename=filename)
     objContainer.setobj("mpobject", m)
     lbl_filename.configure(text=filename)
     option_xy_changed()
 
 def retrieve_x_data():
-    print("looking data for key:",x_entry_var.get())
+    print(x_entry_var.get())
     v = objContainer.getobj("mpobject").get_parseobject().find_possible_keypath(x_entry_var.get())
-    lbl_result_key_x['text'] = v
-    v=str(objContainer.getobj("mpobject").get_parseobject().scan_values('xvalues',v))
+    v2=objContainer.getobj("mpobject").get_parseobject().scan_values('xvalues',v)
     print(v, type(END))
+    length="1"
+    if isinstance(v2, dict) or isinstance(v2,list):
+        length = str(len(v2))
+        if len(str(v2)) > 1000:
+            print(v2)
+            v2 = str(v2)[0:500] + "\n.........\n"
+
+
+    lbl_result_key_x['text'] = "Pfad:"+v + "\nAnzahl:"+length
     lbl_result_x.configure(state='normal')
     lbl_result_x.delete("1.0", END)
-    lbl_result_x.insert("end", v)
+    lbl_result_x.insert("end", str(v2))
     lbl_result_x.configure(state='disabled')
 
 def retrieve_y_data():
@@ -307,6 +315,7 @@ if __name__ == "__main__":  # verhindert Start bei Import; ermöglicht Start bei
     # scroll_bar.grid(row=6, column=2,columnspan=1, sticky=NS,rowspan=2)
     # lbl_result_x.grid(row=6, column=1,sticky=W)
     # lbl_result_x.config(yscrollcommand=scroll_bar.set)#,font=('Arial', 8, 'bold', 'italic'))
+
 
     lbl_result_x = scrolledtext.ScrolledText(buttonframe,
                               wrap=tk.WORD,
