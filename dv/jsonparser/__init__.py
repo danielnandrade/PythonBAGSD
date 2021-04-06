@@ -30,7 +30,7 @@ class JsonParser(BaseParser):
     def set_source(self, filename=None, url=None, source_string=None) -> str:
         try:
             s = super().set_source(filename, url, source_string)
-
+            print ("Hello")
             if source_string:
                 self.jsonobj = json.loads(source_string)
             elif filename:
@@ -50,7 +50,7 @@ class JsonParser(BaseParser):
 
     def find_possible_keynames_all(self) -> dict:
         rdict = {}
-
+        print(self.jsonobj)
         if isinstance(self.jsonobj, dict):
             for k, v in self.jsonobj.items():
                 if isinstance(v, dict):

@@ -6,7 +6,9 @@ import multiparser as js
 ##########################################################################
 
 # Sources
-obj = js.MultiParser(filename="C:/Users/Nebil/Desktop/DataScientist/PycharmProjects/pythonProject1/eq_data_1_day_m1.jsonx")
+
+obj = js.MultiParser(filename="C:/Users/Nebil/Desktop/DataScientist/PycharmProjects/PythonBAGSD/country.json")
+#obj = js.MultiParser(filename="C:/Users/Nebil/Desktop/DataScientist/PycharmProjects/pythonProject1/eq_data_1_day_m1.jsonx")
 #obj = js.multiParser(url="https://covid.ourworldindata.org/data/owid-covid-data.json")
 #obj = js.multiParser(filename="C:/Users/Nebil/Desktop/DataScientist/PycharmProjects/pythonProject1/owid-covid-data_deu.json")
 #obj = js.multiParser(filename="C:/Users/Nebil/Desktop/DataScientist/PycharmProjects/pythonProject1/kap_13_Pegel_Bonn.json")
@@ -18,7 +20,7 @@ print("alle auswählbaren keys=",list(obj.find_possible_keynames_all().keys()))
 #print(obj.scan_values("ywerte","$.features[*].geometry.coordinates[0]"))
 #print(obj.scan_values("magwerte","$.features[*].properties.mag"))
 
-v1=obj.find_possible_keypath("coordinates")#[]#stringency_index[0]")
+v1=obj.find_possible_keypath("pop")#[]#stringency_index[0]")
 print("keyname=",v1)
 if v1 != "":
      v2= obj.scan_values("sdf", v1)#+"[0]")

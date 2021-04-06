@@ -62,9 +62,9 @@ class BaseParser:
         if not filename and not url and not source_string:
             raise Exception("DV-Error: Es muss mindestens einer der drei Parameter uebergeben werden")
 
-        if filename:
-            if not os.path(filename):
-                raise Exception("DV-Error: Die angegebene Datei existiert nicht!")
+        # if filename:
+        #     if not os.path(filename):
+        #         raise Exception("DV-Error: Die angegebene Datei existiert nicht!")
 
         return CONST_OK
 
