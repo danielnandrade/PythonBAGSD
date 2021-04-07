@@ -2,22 +2,39 @@ import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 import tkinter.ttk as ttk
-# import json
-# import csv
-# import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-# from datetime import datetime
-# from dv import *
-from dv.multiparser import multiParser
+from dv.multiparser import MultiParser
 import tkinter.scrolledtext as st
-# from IPython.utils.tests.test_wildcard import obj_t
 
-# matplotlib.use('TkAgg')
-
+#TODO EXPORT
+import pandas as pd
+import numpy as np
+import random  # XXX only for testing
+import matplotlib.figure
+import matplotlib.patches
 
 class ApplicationWindow(tk.Frame):
     """ Class ApplicationWindow: In this class, the whole system of the window (GUI) is created. Moreover """
+    plot_dropdown_dic = {'Test plot': 'testplot',
+                             'Data scatter plot': 'data_scatterplot',
+                             'Pie chart': 'piechart',
+                             'Histogram': 'histogram',
+                             'Bar chart': 'barchart',
+                             'Mean and Std dev': 'mean_xy',
+                             'Earth overlay': 'earth_overlay',
+                             'Cosine wave': 'cosinewave',
+                             'Stem and leaf plot': 'stemandleafplot',
+                             'Pie chart Ordered': 'piechart_ordered',
+                             'Bar chart Ordered': 'barchart_ordered',
+                             'Bar Horizontal': 'barchart_horizontal',
+                             'Bar Horizontal Ordered': 'barchart_horizontal_ordered',
+                             'Lollipop': 'lollypop',
+                             'Lollipop Ordered': 'lollypop_ordered',
+
+    }
+    plot_dropdown_color = {'Red' : 'red','Blue':'blue','Yellow':'yellow'
+                         }
 
     def __init__(self,  *args, **kwargs):
         """ Constructor function: Creation of the object with a specific values."""
@@ -65,7 +82,7 @@ class ApplicationWindow(tk.Frame):
         """Summary-Window: Here, the chosen x/y-axis and the graph-style and analysis are shown."""
         self.lbl_summary = tk.Label(self.buttonframe, text="Summary", font=("default", 16)).grid(row=2, column=0)
         self.x_summary = tk.Label(self.buttonframe, text="x-axis:", font=("default", 16)).grid(row=2, column=1)
-        self.x_summary_inp = tk.Label(self.buttonframe, state='disabled', textvariable=self.x_entry_var)
+        self.x_summary_inp = tk.Label(self.buttonframe, state='disabled', textvariable=self.x_entry_var, foreground="blue")
         self.x_summary_inp.grid(row=2, column=2)
         self.y_summary = tk.Label(self.buttonframe, text="y-axis:", font=("default", 16)).grid(row=2, column=3)
         self.y_summary_inp = tk.Label(self.buttonframe, state='disabled', textvariable=self.y_entry_var)
@@ -206,7 +223,9 @@ class ApplicationWindow(tk.Frame):
         """ TAB3: Plot-Options """
         self.empty = tk.Label(self.tab3, text="").grid(row=0, column=9)  # empty row
 
-        self.options_plotting = ["Scatter", "Line", "Sinus", "3D"]
+        #+self.options_plotting = ["Scatter", "Line", "Sinus", "3D"] TODO: EXPORT !!
+
+        self.options_plotting = list(self.plot_dropdown_dic.keys()) # TODO: EXPORT
         self.variable_plot = StringVar(self.tab3)     # see variable_x
         self.variable_plot.set(self.options_plotting[0])
         # EVENTUELL HIER NOCH EIN TRACE HINZUFÜGEN, BRAUCHEN ABER EINE FUNKTION!
@@ -222,15 +241,15 @@ class ApplicationWindow(tk.Frame):
 
         self.empty = tk.Label(self.tab3).grid(row=3, column=9)  # 0+1 row
 
-        self.options_analysis = ["Medium", "Deviation"]
-        self.variable_analysis = StringVar(self.tab3)
-        self.variable_analysis.set(self.options_analysis[0])
+        self.options_color = list(self.plot_dropdown_color.keys())
+        self.variable_color = StringVar(self.tab3)
+        self.variable_color.set(self.options_color[0])
         # EVENTUELL HIER NOCH EIN TRACE HINZUFÜGEN, BRAUCHEN ABER EINE FUNKTION!
 
         self.lbl_analysis = tk.Label(self.tab3, text="Choose what you\nwant to analyse")
         self.lbl_analysis.grid(row=4, column=0, sticky=tk.N + tk.S + tk.E + tk.W)
         # same fot zhe OptionMenu with the plotting-methods
-        self.inp_analysis = OptionMenu(self.tab3, self.variable_analysis, *self.options_analysis)
+        self.inp_analysis = OptionMenu(self.tab3, self.variable_color, *self.options_color)
         self.inp_analysis.grid(row=4, column=1, sticky=tk.N + tk.S + tk.E + tk.W)
 
         self.analysis_entry_field = tk.Entry(self.tab3, textvariable=self.analysis_entry_var)   # eventually: text='empty'
@@ -238,12 +257,13 @@ class ApplicationWindow(tk.Frame):
 
         self.empty = tk.Label(self.tab3).grid(row=6, column=9)  # 0+1 row
 
-        self.plot_f = tk.Button(self.tab3, text="Plot", activeforeground="red")  # NOCH COMMAND HINEINSCHREIBEN
-        self.plot_f.grid(row=7, column=0, rowspan=2, columnspan=2, sticky=tk.N + tk.S + tk.E + tk.W)
-
         """ TAB4: Plot-Window """
         self.plot_window = Plotwindow(self.tab4, (10, 8))         # inch
         # self.plot_window = Plotwindow(self.plotframe, (10, 8))  # inch
+
+        self.plot_f = tk.Button(self.tab3, text="Plot", activeforeground="red", command=self.plot_window.plot)  # NOCH COMMAND HINEINSCHREIBEN
+        self.plot_f.grid(row=7, column=0, rowspan=2, columnspan=2, sticky=tk.N + tk.S + tk.E + tk.W)
+
 
         self.button_clear = tk.Button(self.tab4, text="Clear\nthe\nplot", command=self.clear)
         self.button_clear.grid(row=0, column=8, sticky=tk.N + tk.S + tk.E + tk.W)
@@ -255,7 +275,7 @@ class ApplicationWindow(tk.Frame):
         filename = filedialog.askopenfilename(filetypes=[("JSON-File", "*.json"), ("CSV-File", "*.csv")],
                                               title="Which data do you want plotted?")
         objContainer.setobj("selectedFile", filename)    # saves the filename into the objectContainer
-        m = multiParser(filename=filename)
+        m = MultiParser(filename=filename)
         objContainer.setobj("mpobject", m)
         self.label_f.configure(text=filename)    # changes the label from "Filename ... to the filename (with path)
         self.option_xy_changed()       # executes the function option_xy_change (description see below)
@@ -303,12 +323,14 @@ class ApplicationWindow(tk.Frame):
         self.x_entry_field.delete(0, END)
         self.x_entry_field.insert(0, self.variable_x.get())    # in the x-entry field the picked values are shown and
         # # inserted into the position
+        return self.variable_x.get()
 
     def option_y_selected(self, *args):
         """ See option_x_selected (above). """
         # # Same as for variable_x
         self.y_entry_field.delete(0, END)
         self.y_entry_field.insert(0, self.variable_y.get())
+        return self.variable_y.get()
 
     def retrieve_x_data(self):
         """ Function retrieve_x_data: The values of the picked x-data (x_entry_var) are being scanned by the method
@@ -316,22 +338,24 @@ class ApplicationWindow(tk.Frame):
 
         v1 = objContainer.getobj("mpobject").get_parseobject().find_possible_keypath(self.x_entry_var.get())
         # print(v1)
-        v2 = objContainer.getobj("mpobject").get_parseobject().scan_values('xvalues', v1)
+        retrieved_data = objContainer.getobj("mpobject").get_parseobject().scan_values('xvalues', v1)
         # Saving the x_entry_var into parseobject and scan the values of it (scan_values) and saves it into xvalues
         # # NOCH SCHAUEN: würde auch self.variable_y.get()) gehen?
-        v2_text = str(v2)    #+ "\n" + str(v2)[87:165] + "\n..."
+        v2_text = str(retrieved_data)    #+ "\n" + str(v2)[87:165] + "\n..."
         if len(v2_text) <= 1000:
             pass
         else:
-            v2_text = str(v2)[0:1000]
+            v2_text = str(retrieved_data)[0:1000]
         # self.result_x.configure(text=v2_text)    # changes the text in result_x
         self.result_x.delete('1.0', END)
         self.result_x.insert(tk.INSERT, v2_text)
 
         v1 = str(v1)
-        lengthx = str(len(v2))
+        lengthx = str(len(retrieved_data))
         self.lbl_result_path_x_entry.configure(text=v1)
         self.lbl_result_number_x_entry.configure(text=lengthx)
+
+        return retrieved_data
 
     def retrieve_y_data(self):
         """ See retrieve_x_data (above). """
@@ -353,6 +377,7 @@ class ApplicationWindow(tk.Frame):
         lengthy = str(len(w2))
         self.lbl_result_path_y_entry.configure(text=w1)
         self.lbl_result_number_y_entry.configure(text=lengthy)
+        return w2
 
     def clear(self):
         self.plot_window.clearplot()
@@ -386,14 +411,374 @@ class Plotwindow:
         toolbar.grid(column=0, row=1, sticky=tk.W)
         toolbar.update()
 
-    def plotxy(self, x, y):
-        self.axes.scatter(x, y)
-        self.c1.draw()
+    # def plotxy(self, x, y):
+    #     self.axes.scatter(x, y)
+    #     self.c1.draw()
 
     def clearplot(self):
         self.axes.cla()  # clear axes
         self.c1.draw()
 
+    def plot(self):  #selects plot to draw; gets called from plot button
+        '''
+        to add new plot styles you have to do 3 things:
+        1) write a plot method and add it after def plot(self)
+        2) make an entry in plot_dropdown_dic (see there)
+        3) add another elif case in def plot(self)
+        '''
+        plotstyle = app.plot_dropdown_dic[app.variable_plot.get()]
+        if plotstyle =='testplot':
+            self.testplot()
+        elif plotstyle =='data_scatterplot':
+            self.data_scatterplot()
+        elif plotstyle =='mean_xy':
+            self.mean_xy()
+        elif plotstyle =='earth_overlay':
+            self.earth_overlay()
+        elif plotstyle =='piechart':
+            self.piechart()
+        elif plotstyle =='histogram':
+            self.histogram()
+        elif plotstyle =='barchart':
+            self.barchart()
+        elif plotstyle =='histogram':
+            self.histogram()
+        elif plotstyle == 'cosinewave':
+            self.cosinewave()
+        elif plotstyle == 'stemandleafplot':
+            self.stemandleafplot()
+        elif plotstyle == 'lollypop':
+            self.lollypop()
+        elif plotstyle == 'lollypop_ordered':
+            self.lollypop_ordered()
+        elif plotstyle == 'barchart_ordered':
+            self.barchart_ordered()
+        elif plotstyle == 'piechart_ordered':
+            self.piechart_ordered()
+        elif plotstyle == 'barchart_horizontal_ordered':
+            self.barchart_horizontal_ordered()
+        elif plotstyle == 'barchart_horizontal':
+            self.barchart_horizontal()
+    #just a test plot to test the drop down
+
+    def testplot(self):
+        x = range(1000)  # XXX plottable data to test
+        y = []
+        for i in range(1000):
+            y.append(random.randint(0, 200))
+
+        self.axes.scatter(x, y)
+        self.c1.draw()
+
+    #plots of data:
+
+
+
+    def piechart(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A pie chart is a circle divided into sectors that each represent a proportion of the whole.
+        It is often used to show proportion, where the sum of the sectors equal 100%."""
+
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        self.axes.set_title(f"Piechart - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.pie(xdata, autopct='%1.1f%%')
+        self.axes.legend(ydata, loc="upper left")
+        circle = matplotlib.patches.Circle((0, 0), 0.7, color='white')
+        self.axes.add_artist(circle)
+        self.axes.add_artist(circle)
+        self.c1.draw()
+
+    def piechart_ordered(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A pie chart is a circle divided into sectors that each represent a proportion of the whole.
+        It is often used to show proportion, where the sum of the sectors equal 100%."""
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
+        ordered_df = df.sort_values(by='Xvalue')
+
+        self.axes.set_title(f"Piechart - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.pie(ordered_df['Xvalue'], autopct='%1.1f%%')
+        self.axes.legend(ordered_df['Yvalue'], loc="upper left")
+        circle = matplotlib.patches.Circle((0, 0), 0.7, color='white')
+        self.axes.add_artist(circle)
+        self.axes.add_artist(circle)
+        self.c1.draw()
+
+    def histogram(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        self.axes.set_title(f"Histogram - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        chart_color_typ = app.plot_dropdown_color[app.variable_color.get()]
+        print(chart_color_typ)
+        self.axes.hist(xdata,label=True, bins=len(ydata),edgecolor='black',color=chart_color_typ)
+        self.c1.draw()
+
+    def barchart(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        self.axes.set_title(f"Barchart - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        chart_color_typ = app.plot_dropdown_color[app.variable_color.get()]
+        print(chart_color_typ)
+        self.axes.bar(ydata, xdata, width=0.8, bottom=None, align="center",color=chart_color_typ)
+        self.axes.set_xticks(ydata)
+        self.c1.draw()
+
+    def barchart_ordered(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
+        ordered_df = df.sort_values(by='Xvalue')
+
+        self.axes.set_title(f"Barchart - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        chart_color_typ = app.plot_dropdown_color[app.variable_color.get()]
+        print(chart_color_typ)
+        self.axes.bar(ordered_df['Yvalue'], ordered_df['Xvalue'], width=0.8, bottom=None,
+                      align="center",color=chart_color_typ)
+        self.axes.set_xticks(ordered_df['Yvalue'])
+        self.c1.draw()
+
+    def barchart_horizontal(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        self.axes.set_title(f"Barchart - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        chart_color_typ = app.plot_dropdown_color[app.variable_color.get()]
+        print(chart_color_typ)
+        self.axes.barh(ydata, xdata,color=chart_color_typ)
+        self.c1.draw()
+
+
+    def barchart_horizontal_ordered(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
+        ordered_df = df.sort_values(by='Xvalue')
+
+        self.axes.set_title(f"Barchart - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        chart_color_typ = app.plot_dropdown_color[app.variable_color.get()]
+        print(chart_color_typ)
+        self.axes.barh(ordered_df['Yvalue'],ordered_df['Xvalue'],color=chart_color_typ)
+        self.c1.draw()
+
+    def lollypop(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        self.axes.set_title(f"Lollypop - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.stem(ydata,xdata)
+        self.axes.set_ylim(0)
+        self.c1.draw()
+
+    def lollypop_ordered(self):
+        self.axes.remove()
+        self.axes = self.figure.add_subplot(111)
+        """A histogram takes as input a numeric variable only.
+        The variable is cut into several bins, and the number of observation per bin
+        is represented by the height of the bar. It is possible to represent the
+        distribution of several variable on the same axis using this technique."""
+
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+
+        df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
+        ordered_df = df.sort_values(by='Xvalue')
+
+        self.axes.set_title(f"Lollypop Ordered - {x_label} X {y_label}")
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.stem(ordered_df['Yvalue'],ordered_df['Xvalue'])
+        self.axes.set_ylim(0)
+        self.c1.draw()
+
+    def data_scatterplot(self):
+        #first iteration
+        #plots data from last retrieved data set
+        #convert to float or axes are not ordered!!!!
+
+
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+        xdata = list(map(float, xdata))
+        ydata = list(map(float, ydata))
+        print('xdata from data_scatterplot:', xdata, 'type:', type(xdata))
+        print('ydata from data_scatterplot:', ydata, 'type:', type(ydata))
+        #print('xlabel from data_scatterplot:', x_label, 'type:', type(x_label))
+        #print('ylabel from data_scatterplot:', y_label, 'type:', type(y_label))
+        #self.figure.ylabel(y_label)
+        self.axes.set_title('A simple and fast scatter plot')
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+        self.axes.scatter(xdata, ydata)
+        self.c1.draw()
+
+    def cosinewave(self):
+        x = np.arange(0, 20, 0.2)             # allows us to get x values for the data plot
+        y = np.cos(x)                 # allows the amplitude of the cosine wave to be cosine of a variable like time
+        print('self:', self)
+        self.axeshlines(y=0, color='r')
+        self.axes.scatter(x, y)
+        self.c1.draw()
+        pass
+
+    def stemandleafplot(self):
+        # marks obtained by students in an examination
+        y = [10, 11, 22, 24, 35, 37, 45, 47, 48, 58, 56, 59, 61, 71, 81, 92, 95]
+        x = [1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 7, 8, 9, 9]  # corresponding stems
+        # set the x axis and y axis limits
+        self.axes.set_xlim([0, 10])
+        self.axes.set_ylim([0, 100])
+
+        y_line, x_line, baseline = self.axes.stem(x, y, '-.')
+        #mpl.mplcursors.cursor()
+        self.c1.draw()
+
+    #analytics:
+
+    def mean_xy(self):
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+
+        xdata = list(map(float, xdata))     # needed to order axes
+        ydata = list(map(float, ydata))
+
+        # print('xdata from mean_xy:', xdata, 'type:', type(xdata))
+        # print('ydata from mean_xy:', ydata, 'type:', type(ydata))
+
+        mean_x = float(np.mean(np.array(xdata)))
+        mean_y = float(np.mean(np.array(ydata)))
+
+        std_deviation_x = float(np.std(np.array(xdata)))
+        std_deviation_y = float(np.std(np.array(ydata)))
+
+        # ellipse_std_dev = matplotlib.patches.Ellipse((mean_x, mean_y), (100), (100), angle=0)
+        ellipse_std_dev = matplotlib.patches.Ellipse((mean_x, mean_y),
+                                                     width=(std_deviation_x*2),
+                                                     height=(std_deviation_y*2),
+                                                     angle=0)
+        ellipse_std_dev.set_fill(0)
+        ellipse_std_dev.set_color('red')
+        self.axes.add_artist(ellipse_std_dev)
+
+        self.axes.hlines(mean_y, min(xdata), max(xdata), color='red')
+        self.axes.vlines(mean_x, min(ydata), max(ydata), color='red')
+        self.axes.scatter(mean_x, mean_y, color='red')
+
+        mean_x = round(mean_x, 2)
+        mean_y = round(mean_y, 2)
+        std_deviation_x = round(std_deviation_x, 2)
+        std_deviation_y = round(std_deviation_y, 2)
+
+        mean_text = 'X = ' + str(mean_x) + ' +- ' + str(std_deviation_x) + '\n' + 'Y = ' + str(mean_y) + ' +- ' + str(std_deviation_y)
+        self.axes.annotate(mean_text, (mean_x, mean_y), color='red')
+
+        self.c1.draw()
+
+    #additional plots:
+
+    def earth_overlay(self):
+        #TODO: *scling and use another file with no imprint
+        overlay = plt.imread('pngkit_world-map-outline-png_1243196.png')
+        self.axes.imshow(overlay, aspect='auto')
+        self.c1.draw()
 
 print("__name__:", __name__)
 
@@ -406,3 +791,4 @@ if __name__ == "__main__":
     objContainer = myVars()
     # print("meineObjekte=", objContainer.getAllNames())
     app.mainloop()
+
