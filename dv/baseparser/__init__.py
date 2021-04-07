@@ -2,12 +2,13 @@
 @Author: Nebil G.
 """
 
-import os
+import os.path
 
 # Constants
 CONST_OK = "OK"
 CONST_OVERWRITTEN = "UEBERSCHRIEBEN"
 CONST_NO_DATA = "no data"
+CONST_EMPTY = ""
 
 
 class BaseParser:
@@ -27,11 +28,11 @@ class BaseParser:
         self.__url = url
         self.__source_string = source_string
 
-        self.__saved_values_in_dict = {}  # key + value-list pair
-        #self.__list_of_selectable_keys=[]
+        # the corresponding parsing Object jsonreader, csvreader or selfmade reader
+        # needs to be instantiated in real implementation
+        self.__object_reader = None
 
-        # analyze the source and prepare the object on base of the data in descendant
-        self.set_source(filename, url, source_string)
+        self.__saved_values_in_dict = {}  # key + value-list pair
 
     # ###################### start GETTER - Methods ########################
     def get_url(self) -> str:
@@ -52,6 +53,12 @@ class BaseParser:
     def set_source_string(self, source_string):
         self.__source_string = source_string
 
+    def get_object_reader(self) -> str:
+        return self.__object_reader
+
+    def set_object_reader(self, object_reader):
+        self.__object_reader = object_reader
+
     # ###################### END GETTER - Methods ########################
 
     def set_source(self, filename=None, url=None, source_string=None) -> str:
@@ -62,9 +69,9 @@ class BaseParser:
         if not filename and not url and not source_string:
             raise Exception("DV-Error: Es muss mindestens einer der drei Parameter uebergeben werden")
 
-        # if filename:
-        #     if not os.path(filename):
-        #         raise Exception("DV-Error: Die angegebene Datei existiert nicht!")
+        if filename:
+            if not os.path.isfile(filename):
+                raise Exception("DV-Error: Die angegebene Datei existiert nicht!")
 
         return CONST_OK
 
@@ -105,7 +112,8 @@ class BaseParser:
         if name in self.__saved_values_in_dict.keys():
             return self.__saved_values_in_dict[name]
         else:
-            return list[CONST_NO_DATA]
+            return list([CONST_NO_DATA])
+
 
     def set_values(self, name, values) -> str:
         """
@@ -116,7 +124,15 @@ class BaseParser:
         """
         if name in self.__saved_values_in_dict.keys():
             self.__saved_values_in_dict[name] = values
-            return CONST_OVERWRITTEN
+            return self.CONST_OVERWRITTEN
         else:
             self.__saved_values_in_dict[name] = values
-            return CONST_OK
+            return self.CONST_OK
+
+    def set_values_all(self, dict_all) -> None:
+        """
+        if dict with all key,value pairs are created outside, it can be set here in total
+
+        :param name: dict_all the whole dict with keyname and possible values in list
+        """
+        self.__saved_values_in_dict = dict_all

@@ -22,24 +22,26 @@ from dv.baseparser import BaseParser
 
 
 class JsonParser(BaseParser):
-    def __init__(self, filename=None, url=None, source_string=None) -> str:
+    def __init__(self, filename=None, url=None, source_string=None):
 
         # init -> triggers automatically set_source in baseObject
-        return super().__init__(filename, url, source_string)
+        super().__init__(filename, url, source_string)
+        # analyze the source and prepare the object on base of the data in descendant
+        self.set_source(filename, url, source_string)
 
     def set_source(self, filename=None, url=None, source_string=None) -> str:
         try:
             s = super().set_source(filename, url, source_string)
-            print ("Hello")
+
             if source_string:
-                self.jsonobj = json.loads(source_string)
+                self.set_object_reader(json.loads(source_string))
             elif filename:
                 with open(filename) as f:
-                    self.jsonobj = json.load(f)
+                    self.set_object_reader(json.load(f))
             elif url:  # jsonstring aus url holen
                 import requests
                 self.set_source_string(json.dumps(requests.get(url).json()))
-                self.jsonobj = json.loads(self.get_source_string())
+                self.set_object_reader(json.loads(self.get_source_string()))
             else:
                 s = "Parameters are incorrect"
         except Exception as e:
@@ -50,20 +52,22 @@ class JsonParser(BaseParser):
 
     def find_possible_keynames_all(self) -> dict:
         rdict = {}
-        print(self.jsonobj)
-        if isinstance(self.jsonobj, dict):
-            for k, v in self.jsonobj.items():
-                if isinstance(v, dict):
-                    rdict[k] = "{dictLevel1}"
-                    self.__find_possible_keynames_dict(v, rdict)
-                elif isinstance(v, list):
-                    rdict[k+"[*]"] = "[list]"
-                    self.__find_possible_keynames_dict(v[0], rdict)
-                else:
-                    rdict[str(k)] = str(v)
-        elif isinstance(self.jsonobj, list):
-            self.__find_possible_keynames_list(self.jsonobj[0], rdict)
-        #print("ALL=", rdict)
+
+        if self.get_object_reader():
+            if isinstance(self.get_object_reader(), dict):
+                for k, v in self.get_object_reader().items():
+                    if isinstance(v, dict):
+                        rdict[k] = "{dictLevel1}"
+                        self.__find_possible_keynames_dict(v, rdict)
+                    elif isinstance(v, list):
+                        rdict[k+"[*]"] = "[list]"
+                        self.__find_possible_keynames_dict(v[0], rdict)
+                    else:
+                        rdict[str(k)] = str(v)
+            elif isinstance(self.get_object_reader(), list):
+                self.__find_possible_keynames_list(self.get_object_reader()[0], rdict)
+
+        print("ALL=", rdict)
         return rdict
 
     def __find_possible_keynames_dict(self, d, sumd):
@@ -113,7 +117,7 @@ class JsonParser(BaseParser):
         :return: the complete path to retrieve related values
 
         """
-        if not self.jsonobj:
+        if not self.get_object_reader():
             raise Exception("Es konnte kein JSON-Objekt erkannt werden, wurde die init-Methode aufgerufen ?")
 
         # only if not starting with root ($), when root is provided trust the path and dont look for fullpath
@@ -130,11 +134,11 @@ class JsonParser(BaseParser):
         self.possible_path=[]
 
         # hauptzweig ist dict oder list
-        if isinstance(self.jsonobj, dict):
-            if search_string in self.jsonobj.keys():  # found in root
+        if isinstance(self.get_object_reader(), dict):
+            if search_string in self.get_object_reader().keys():  # found in root
                 self.possible_path.append(search_string)
             else: # nicht im Haupt-Dict-Key, also weitersuchen recursiv in inneren Objekten
-                for dict_key, dict_value in self.jsonobj.items():
+                for dict_key, dict_value in self.get_object_reader().items():
                     # check type and depending on this continue search
                     print("Level1: ", dict_key)
                     if isinstance(dict_value, dict):
@@ -151,12 +155,12 @@ class JsonParser(BaseParser):
                                 self.possible_path.append(dict_key + "[*]")
                                 break
         else: # kein dict, sondern list im hauptzweig
-            if isinstance(self.jsonobj, list):
-                if isinstance(self.jsonobj[0], dict):
-                    if self.__find_possible_key_path_in_dict(search_string, self.jsonobj[0]):
+            if isinstance(self.get_object_reader(), list):
+                if isinstance(self.get_object_reader()[0], dict):
+                    if self.__find_possible_key_path_in_dict(search_string, self.get_object_reader()[0]):
                         self.possible_path.append("[*]")
-                elif isinstance(self.jsonobj[0], list):
-                    if self.__find_possible_key_path_in_list0(search_string, self.jsonobj[0]):
+                elif isinstance(self.get_object_reader()[0], list):
+                    if self.__find_possible_key_path_in_list0(search_string, self.get_object_reader()[0]):
                         self.possible_path.append("[*]")
 
         rs = ".".join(self.possible_path[::-1])
@@ -249,7 +253,7 @@ class JsonParser(BaseParser):
         jsonpath_expression = parse(keypath)#'$.features[*].geometry.coordinates[0]')  # parse('$.id')
 
         # match = jsonpath_expression.find(json_data)[0]
-        x = [match.value for match in jsonpath_expression.find(self.jsonobj)]
+        x = [match.value for match in jsonpath_expression.find(self.get_object_reader())]
         if len(x) == 1:
             x = x[0]
 
