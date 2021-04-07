@@ -23,7 +23,6 @@ class ApplicationWindow(tk.Frame):
                              'Bar chart': 'barchart',
                              'Mean and Std dev': 'mean_xy',
                              'Earth overlay': 'earth_overlay',
-                             'Cosine wave': 'cosinewave',
                              'Stem and leaf plot': 'stemandleafplot',
                              'Pie chart Ordered': 'piechart_ordered',
                              'Bar chart Ordered': 'barchart_ordered',
