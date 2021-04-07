@@ -625,7 +625,6 @@ class Plotwindow:
         self.axes.barh(ydata, xdata,color=chart_color_typ)
         self.c1.draw()
 
-
     def barchart_horizontal_ordered(self):
         self.axes.remove()
         self.axes = self.figure.add_subplot(111)
@@ -727,20 +726,23 @@ class Plotwindow:
 
         xdata = app.retrieve_x_data()
         ydata = app.retrieve_y_data()
+        xdata = list(map(float, xdata))
 
         # x = np.arange(0, 20, 0.2) # allows us to get x values for the data plot
         # y = np.cos(x) # allows the amplitude/height (the peak deviation of the function from zero)
         # of the cosine wave to be cosine of a variable like time
 
-        x = np.array(xdata())  # allows us to get x values for the data plot
-        y = np.cos(x)  # allows the amplitude/height (the peak deviation of the function from zero)
+        x = np.array(xdata)  # allows us to get x values for the data plot
+        print(x, type(x))
+        y = x*np.cos(x)  # allows the amplitude/height (the peak deviation of the function from zero)
         # of the cosine wave to be cosine of a variable like time
         print('self:', self)
 
-        self.axes.stem(mean_y, (xdata == 0), color='red')
-        # self.axeshlines(y=0, color='r')
 
-        self.axes.scatter(x, y)
+        #self.axes.stem(mean_y, (xdata == 0), color='red')
+        #self.axeshlines(y=0, color='r')
+
+        self.axes.plot(x, y)
 
         self.axes.set_title('Group E Project_Cosine_wave_plot')
         self.axes.set_xlabel(x_label)
@@ -748,17 +750,28 @@ class Plotwindow:
 
         self.c1.draw()
 
-
-
-    def stemandleafplot(self):
+    def stemandleafplot(self):  # YYY
         # marks obtained by students in an examination
-        y = [10, 11, 22, 24, 35, 37, 45, 47, 48, 58, 56, 59, 61, 71, 81, 92, 95]
-        x = [1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 7, 8, 9, 9]  # corresponding stems
-        # set the x axis and y axis limits
-        self.axes.set_xlim([0, 10])
-        self.axes.set_ylim([0, 100])
+        xdata = app.retrieve_x_data()
+        ydata = app.retrieve_y_data()
+        x_label = str(app.option_x_selected())
+        y_label = str(app.option_y_selected())
+        xdata = list(map(float, xdata))
+        ydata = list(map(float, ydata))
 
-        y_line, x_line, baseline = self.axes.stem(x, y, '-.')
+        #y = [10, 11, 22, 24, 35, 37, 45, 47, 48, 58, 56, 59, 61, 71, 81, 92, 95]
+        #x = [1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 7, 8, 9, 9]  # corresponding stems
+
+
+        # set the x axis and y axis limits
+        self.axes.set_xlim([min(xdata), max(xdata)])
+        self.axes.set_ylim([min(ydata), max(ydata)])
+        self.axes.set_xlabel(x_label)
+        self.axes.set_ylabel(y_label)
+
+        self.axes.stem(xdata, ydata, '-.')
+        #y_line, x_line, baseline
+
         #mpl.mplcursors.cursor()
         self.c1.draw()
 
