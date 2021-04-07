@@ -124,10 +124,10 @@ class BaseParser:
         """
         if name in self.__saved_values_in_dict.keys():
             self.__saved_values_in_dict[name] = values
-            return self.CONST_OVERWRITTEN
+            return CONST_OVERWRITTEN
         else:
             self.__saved_values_in_dict[name] = values
-            return self.CONST_OK
+            return CONST_OK
 
     def set_values_all(self, dict_all) -> None:
         """
