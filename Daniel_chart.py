@@ -287,28 +287,4 @@ import pandas as pd
         self.axes.stem(ordered_df['Yvalue'],ordered_df['Xvalue'])
         self.axes.set_ylim(0)
         self.c1.draw()
-        #draw crossing lines
-        #use numpy mean
 
-        #let lines cross?
-        #return labels on which data set the mean is based
-        pass
-
-    def standard_dev(self,xdata=None,ydata=None):
-
-        #use numpy standard dev
-
-        #plot oval
-        # return labels on which data set the standev is based
-        pass
-
-
-if __name__ == "__main__":
-    """ 1st: Creation of the root-window (with title) and in the root-window the button-frame (which options we have 
-    to plot it, see below) and the plot-frame (frame in which we plot) at the end. """
-    root = tk.Tk()
-    root.title("What do you want to plot?")
-    app = ApplicationWindow(master=root)
-    objContainer = myVars()
-    print("meineObjekte=", objContainer.getAllNames())
-    app.mainloop()uto
