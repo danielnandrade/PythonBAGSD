@@ -519,6 +519,11 @@ class Plotwindow:
         x_label = str(app.option_x_selected())
         y_label = str(app.option_y_selected())
 
+        """Command that organize the data in datasets using Pandas.
+        You have to create a Dictionary with the DataFrame command from Panda with the 2 variables X and Y.
+        With that you sort the values by a specific Field, in this case by the X value (our number value)
+        This Dataframe will be used as the new variables for plot Variables in the Graph Styles."""
+
         df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
         ordered_df = df.sort_values(by='Xvalue')
 
@@ -590,6 +595,11 @@ class Plotwindow:
         x_label = str(app.option_x_selected())
         y_label = str(app.option_y_selected())
 
+        """Command that organize the data in datasets using Pandas.
+        You have to create a Dictionary with the DataFrame command from Panda with the 2 variables X and Y.
+        With that you sort the values by a specific Field, in this case by the X value (our number value)
+        This Dataframe will be used as the new variables for plot Variables in the Graph Styles."""
+
         df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
         ordered_df = df.sort_values(by='Xvalue')
 
@@ -621,7 +631,6 @@ class Plotwindow:
         self.axes.set_xlabel(x_label)
         self.axes.set_ylabel(y_label)
         chart_color_typ = app.plot_dropdown_color[app.variable_color.get()]
-        # print(chart_color_typ)
         self.axes.barh(ydata, xdata,color=chart_color_typ)
         self.c1.draw()
 
@@ -638,6 +647,11 @@ class Plotwindow:
 
         x_label = str(app.option_x_selected())
         y_label = str(app.option_y_selected())
+
+        """Command that organize the data in datasets using Pandas.
+        You have to create a Dictionary with the DataFrame command from Panda with the 2 variables X and Y.
+        With that you sort the values by a specific Field, in this case by the X value (our number value)
+        This Dataframe will be used as the new variables for plot Variables in the Graph Styles."""
 
         df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
         ordered_df = df.sort_values(by='Xvalue')
@@ -685,6 +699,11 @@ class Plotwindow:
 
         x_label = str(app.option_x_selected())
         y_label = str(app.option_y_selected())
+
+        """Command that organize the data in datasets using Pandas.
+        You have to create a Dictionary with the DataFrame command from Panda with the 2 variables X and Y.
+        With that you sort the values by a specific Field, in this case by the X value (our number value)
+        This Dataframe will be used as the new variables for plot Variables in the Graph Styles."""
 
         df = pd.DataFrame({'Yvalue': ydata, 'Xvalue': xdata})
         ordered_df = df.sort_values(by='Xvalue')
