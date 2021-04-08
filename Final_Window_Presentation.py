@@ -56,9 +56,8 @@ class ApplicationWindow(tk.Frame):
         - variable_x/y: What one selects in the GUI to become the x- and y-axis (with the help of x/y_entry_var).
         - inp_x/y_axis or inp_plot: OptionMenu for the possible options, options_x/y_axis is inserted into the
             OptionMenu.
-        - x/y_entry_var: StringVar. You can use this kind of variable for the later usage of the get and set methods. 
-            With this, you can save it as an axis and scan the values in there for the later plotting. This is a tkinter
-            method.
+        - x/y_entry_var: StringVar und inserted as a textvariable. The changes of it is followed later and can be used
+        according to the changes.
         - x/y_entry_field: Entry-field in which you can either write down what axes you want or in which you can save
             which axis you did in fact choose. This is later needed for the further usage into the saving of which
             x-axis oder y-axis you want. For this, you use the x/y_entry_var and the getter- and setter-method.
