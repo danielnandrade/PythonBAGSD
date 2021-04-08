@@ -47,25 +47,26 @@ Pandas
 
 1. Collect
     Support multiple different file types and makes it available for further analyses.
-    Umfangreiche Datenerfassung:
-    - Vollständig
-    - Anpassbar
-    - Erläuternd
+    Extensive data collection:
+    - Complete
+    - Customizable
+    - Explanatory
 
-2. Interface
-    Benutzeroberfläche:
-    -Einfach
-    -Intuitiv
-    -Erweiterbar
+3. Interface
+    User Interface:
+    -Simple
+    -Intuitive
+    -Advanced
 
 3. Understand
-    Automatisierte Analyse:
-    - Statistische Ressourcen
-    - Mathematische Gleichungen
-    - Direkt auf dem Diagramm
+    Automated Analysis:
+    - Statistical Resources
+    - Mathematical equations
+    - Directly on the graph
 
 4. Plot
-    Benutzerdefinierte Grafiken:
-    - Unterschiedliches Layout
-    - Farbschemata
-    - Sortierung
+    User-defined graphs:
+    - Different layout
+    - Color schemes
+    - Sorting
+
