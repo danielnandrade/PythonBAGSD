@@ -21,6 +21,12 @@ The other files area developments that we made for the next versions:
     -plotengine.py
     -TestPrototype.py
 
+## References
+
+References: course the textbook "Python Crashkurs Eine projektbasierte Programmiereinführung" by E. Matthes, 2020
+as well as the other material used in the course.
+Inspiring tutoring from Herr Dr.-Ing. Christoph Feiler.
+
 ## Technologies
 Python
 Tkinter
@@ -29,7 +35,6 @@ Numpy
 Json
 CSV
 Pandas
-
 
 ## Setup
 
