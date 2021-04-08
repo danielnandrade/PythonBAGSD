@@ -64,9 +64,9 @@ class CsvParser(BaseParser):
             spalte = 0
             for colval in col:
                 # umwandeln in date oder float falls gewuenscht
-                if col_float and col_float == colHeadernames[spalte]:
-                   if str(colval).isdigit():
-                        colval = float(colval)
+                #if col_float and col_float == colHeadernames[spalte]:
+                if str(colval).isdigit():
+                    colval = float(colval)
 
                 if col_date and col_date[0] == colHeadernames[spalte]:
                     colval = datetime.strptime(colval, "%Y%m%d")
