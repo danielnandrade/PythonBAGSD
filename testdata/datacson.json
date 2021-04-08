@@ -1,0 +1,408 @@
+﻿{
+    "Tabelle1": [
+        {
+            "Data": "Input0",
+            "Label": "0"
+        },
+        {
+            "Data": "Input0,2",
+            "Label": "0.2"
+        },
+        {
+            "Data": "Input0,4",
+            "Label": "0.4"
+        },
+        {
+            "Data": "Input0,6",
+            "Label": "0.6"
+        },
+        {
+            "Data": "Input0,8",
+            "Label": "0.8"
+        },
+        {
+            "Data": "Input1",
+            "Label": "1"
+        },
+        {
+            "Data": "Input1,2",
+            "Label": "1.2"
+        },
+        {
+            "Data": "Input1,4",
+            "Label": "1.4"
+        },
+        {
+            "Data": "Input1,6",
+            "Label": "1.6"
+        },
+        {
+            "Data": "Input1,8",
+            "Label": "1.8"
+        },
+        {
+            "Data": "Input2",
+            "Label": "2"
+        },
+        {
+            "Data": "Input2,2",
+            "Label": "2.2"
+        },
+        {
+            "Data": "Input2,4",
+            "Label": "2.4"
+        },
+        {
+            "Data": "Input2,6",
+            "Label": "2.6"
+        },
+        {
+            "Data": "Input2,8",
+            "Label": "2.8"
+        },
+        {
+            "Data": "Input3",
+            "Label": "3"
+        },
+        {
+            "Data": "Input3,2",
+            "Label": "3.2"
+        },
+        {
+            "Data": "Input3,4",
+            "Label": "3.4"
+        },
+        {
+            "Data": "Input3,6",
+            "Label": "3.6"
+        },
+        {
+            "Data": "Input3,8",
+            "Label": "3.8"
+        },
+        {
+            "Data": "Input4",
+            "Label": "4"
+        },
+        {
+            "Data": "Input4,2",
+            "Label": "4.2"
+        },
+        {
+            "Data": "Input4,4",
+            "Label": "4.4"
+        },
+        {
+            "Data": "Input4,6",
+            "Label": "4.6"
+        },
+        {
+            "Data": "Input4,8",
+            "Label": "4.8"
+        },
+        {
+            "Data": "Input5",
+            "Label": "5"
+        },
+        {
+            "Data": "Input5,2",
+            "Label": "5.2"
+        },
+        {
+            "Data": "Input5,4",
+            "Label": "5.4"
+        },
+        {
+            "Data": "Input5,6",
+            "Label": "5.6"
+        },
+        {
+            "Data": "Input5,8",
+            "Label": "5.8"
+        },
+        {
+            "Data": "Input6",
+            "Label": "6"
+        },
+        {
+            "Data": "Input6,2",
+            "Label": "6.2"
+        },
+        {
+            "Data": "Input6,4",
+            "Label": "6.4"
+        },
+        {
+            "Data": "Input6,6",
+            "Label": "6.6"
+        },
+        {
+            "Data": "Input6,8",
+            "Label": "6.8"
+        },
+        {
+            "Data": "Input7",
+            "Label": "7"
+        },
+        {
+            "Data": "Input7,2",
+            "Label": "7.2"
+        },
+        {
+            "Data": "Input7,4",
+            "Label": "7.4"
+        },
+        {
+            "Data": "Input7,6",
+            "Label": "7.6"
+        },
+        {
+            "Data": "Input7,8",
+            "Label": "7.8"
+        },
+        {
+            "Data": "Input8",
+            "Label": "8"
+        },
+        {
+            "Data": "Input8,2",
+            "Label": "8.2"
+        },
+        {
+            "Data": "Input8,4",
+            "Label": "8.4"
+        },
+        {
+            "Data": "Input8,6",
+            "Label": "8.6"
+        },
+        {
+            "Data": "Input8,8",
+            "Label": "8.8"
+        },
+        {
+            "Data": "Input9",
+            "Label": "9"
+        },
+        {
+            "Data": "Input9,2",
+            "Label": "9.2"
+        },
+        {
+            "Data": "Input9,4",
+            "Label": "9.4"
+        },
+        {
+            "Data": "Input9,6",
+            "Label": "9.6"
+        },
+        {
+            "Data": "Input9,8",
+            "Label": "9.8"
+        },
+        {
+            "Data": "Input10",
+            "Label": "10"
+        },
+        {
+            "Data": "Input10,2",
+            "Label": "10.2"
+        },
+        {
+            "Data": "Input10,4",
+            "Label": "10.4"
+        },
+        {
+            "Data": "Input10,6",
+            "Label": "10.6"
+        },
+        {
+            "Data": "Input10,8",
+            "Label": "10.8"
+        },
+        {
+            "Data": "Input11",
+            "Label": "11"
+        },
+        {
+            "Data": "Input11,2",
+            "Label": "11.2"
+        },
+        {
+            "Data": "Input11,4",
+            "Label": "11.4"
+        },
+        {
+            "Data": "Input11,6",
+            "Label": "11.6"
+        },
+        {
+            "Data": "Input11,8",
+            "Label": "11.8"
+        },
+        {
+            "Data": "Input12",
+            "Label": "12"
+        },
+        {
+            "Data": "Input12,2",
+            "Label": "12.2"
+        },
+        {
+            "Data": "Input12,4",
+            "Label": "12.4"
+        },
+        {
+            "Data": "Input12,6",
+            "Label": "12.6"
+        },
+        {
+            "Data": "Input12,8",
+            "Label": "12.8"
+        },
+        {
+            "Data": "Input13",
+            "Label": "13"
+        },
+        {
+            "Data": "Input13,2",
+            "Label": "13.2"
+        },
+        {
+            "Data": "Input13,4",
+            "Label": "13.4"
+        },
+        {
+            "Data": "Input13,6",
+            "Label": "13.6"
+        },
+        {
+            "Data": "Input13,8",
+            "Label": "13.8"
+        },
+        {
+            "Data": "Input14",
+            "Label": "14"
+        },
+        {
+            "Data": "Input14,2",
+            "Label": "14.2"
+        },
+        {
+            "Data": "Input14,4",
+            "Label": "14.4"
+        },
+        {
+            "Data": "Input14,6",
+            "Label": "14.6"
+        },
+        {
+            "Data": "Input14,8",
+            "Label": "14.8"
+        },
+        {
+            "Data": "Input15",
+            "Label": "15"
+        },
+        {
+            "Data": "Input15,2",
+            "Label": "15.2"
+        },
+        {
+            "Data": "Input15,4",
+            "Label": "15.4"
+        },
+        {
+            "Data": "Input15,6",
+            "Label": "15.6"
+        },
+        {
+            "Data": "Input15,8",
+            "Label": "15.8"
+        },
+        {
+            "Data": "Input16",
+            "Label": "16"
+        },
+        {
+            "Data": "Input16,2",
+            "Label": "16.2"
+        },
+        {
+            "Data": "Input16,4",
+            "Label": "16.4"
+        },
+        {
+            "Data": "Input16,6",
+            "Label": "16.6"
+        },
+        {
+            "Data": "Input16,8",
+            "Label": "16.8"
+        },
+        {
+            "Data": "Input17",
+            "Label": "17"
+        },
+        {
+            "Data": "Input17,2",
+            "Label": "17.2"
+        },
+        {
+            "Data": "Input17,4",
+            "Label": "17.4"
+        },
+        {
+            "Data": "Input17,6",
+            "Label": "17.6"
+        },
+        {
+            "Data": "Input17,8",
+            "Label": "17.8"
+        },
+        {
+            "Data": "Input18",
+            "Label": "18"
+        },
+        {
+            "Data": "Input18,2",
+            "Label": "18.2"
+        },
+        {
+            "Data": "Input18,4",
+            "Label": "18.4"
+        },
+        {
+            "Data": "Input18,6",
+            "Label": "18.6"
+        },
+        {
+            "Data": "Input18,8",
+            "Label": "18.8"
+        },
+        {
+            "Data": "Input19",
+            "Label": "19"
+        },
+        {
+            "Data": "Input19,2",
+            "Label": "19.2"
+        },
+        {
+            "Data": "Input19,4",
+            "Label": "19.4"
+        },
+        {
+            "Data": "Input19,6",
+            "Label": "19.6"
+        },
+        {
+            "Data": "Input19,8",
+            "Label": "19.8"
+        },
+        {
+            "Data": "Input20",
+            "Label": "20"
+        }
+    ]
+}
