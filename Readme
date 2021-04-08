@@ -1,0 +1,58 @@
+############################# Data Visualization Program #############################
+
+Group:
+Helena Brinkmann
+Daniel Andrade
+Nebil Gönüleglendiren
+Eugen Sperling
+Gottfried Darko
+
+############################# Data Visualization Program #############################
+
+## Description
+
+A program that can read from different formats and suggests an intuitive construction of diagrams and analytics.
+
+
+## Technologies
+Python
+Tkinter
+Matplotlib
+Numpy
+Json
+CSV
+Pandas
+
+
+## Setup
+
+1. install Python Interpreter > 3.8 (Windows only)
+2. py guiname
+3. run the program
+
+## Features
+
+1. Collect
+    Support multiple different file types and makes it available for further analyses.
+    Umfangreiche Datenerfassung:
+    - Vollständig
+    - Anpassbar
+    - Erläuternd
+
+2. Interface
+    Benutzeroberfläche:
+    -Einfach
+    -Intuitiv
+    -Erweiterbar
+
+3. Understand
+    Automatisierte Analyse:
+    - Statistische Ressourcen
+    - Mathematische Gleichungen
+    - Direkt auf dem Diagramm
+
+4. Plot
+    Benutzerdefinierte Grafiken:
+    - Unterschiedliches Layout
+    - Farbschemata
+    - Sortierung
