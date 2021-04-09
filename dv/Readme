@@ -1,0 +1,8 @@
+############################# Data Visualization Content Parser ######################
+
+## Setup
+
+1. pip install jsonpath_ng
+2. import dv.multiparser
+3. make use of the existing methods in multiparser
+
